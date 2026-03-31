@@ -81,6 +81,7 @@
     <header>
         <h1>Site de Tutoriels en Ligne</h1>
     </header>
+    <p id="openShop" style="transform: rotate(180deg);">MAKE 100% WITH AI</p>
     <nav>
         <button onclick="showSection('home')">Accueil</button>
         <button onclick="showSection('myChannel')">Ma Chaîne</button>
@@ -117,6 +118,10 @@
     </div>
 
     <script>
+openShop.addEventListener("click", function() {
+    shop.style.display = (shop.style.display === "none") ? "block" : "none";
+});
+
         let currentChannel = localStorage.getItem('currentChannel') || '';
         let tutorials = JSON.parse(localStorage.getItem('tutorials')) || [];
 
@@ -139,12 +144,37 @@
             const myTutorialsDiv = document.getElementById('myTutorials');
             myTutorialsDiv.innerHTML = '';
             const myTutorials = tutorials.filter(t => t.channel === currentChannel);
-            myTutorials.forEach(tutorial => {
+            myTutorials.forEach((tutorial, index) => {
                 const div = document.createElement('div');
                 div.className = 'tutorial';
-                div.innerHTML = `<h3>${tutorial.title}</h3><p>${tutorial.content}</p><small>Par ${tutorial.channel}</small>`;
+                const title = document.createElement('h3');
+                title.textContent = tutorial.title;
+                const content = document.createElement('p');
+                content.textContent = tutorial.content;
+                const author = document.createElement('small');
+                author.textContent = `Par ${tutorial.channel}`;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.onclick = () => deleteTutorial(index);
+                div.appendChild(title);
+                div.appendChild(content);
+                div.appendChild(author);
+                div.appendChild(deleteBtn);
                 myTutorialsDiv.appendChild(div);
             });
+        }
+
+        function deleteTutorial(index) {
+            const myTutorials = tutorials.filter(t => t.channel === currentChannel);
+            const tutorialToDelete = myTutorials[index];
+            const globalIndex = tutorials.indexOf(tutorialToDelete);
+            if (globalIndex > -1) {
+                tutorials.splice(globalIndex, 1);
+                localStorage.setItem('tutorials', JSON.stringify(tutorials));
+                displayMyTutorials();
+                alert('Tutoriel supprimé !');
+            }
         }
 
         function loadAllTutorials() {
