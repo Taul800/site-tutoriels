@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site de Tutoriels</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        nav {
+            background-color: #444;
+            padding: 10px;
+        }
+        nav button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        nav button:hover {
+            background-color: #666;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, textarea, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .tutorial {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .tutorial h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Site de Tutoriels en Ligne</h1>
+    </header>
+    <nav>
+        <button onclick="showSection('home')">Accueil</button>
+        <button onclick="showSection('myChannel')">Ma Chaîne</button>
+        <button onclick="showSection('allTutorials')">Tous les Tutoriels</button>
+    </nav>
+    <div class="container">
+        <div id="home" class="section active">
+            <h2>Bienvenue sur le Site de Tutoriels</h2>
+            <p>Créez votre chaîne de tutoriels et explorez ceux des autres !</p>
+            <h3>Rechercher des Tutoriels</h3>
+            <input type="text" id="searchInput" placeholder="Rechercher par titre ou contenu...">
+            <button onclick="searchTutorials()">Rechercher</button>
+            <div id="searchResults"></div>
+        </div>
+        <div id="myChannel" class="section">
+            <h2>Ma Chaîne</h2>
+            <form id="channelForm">
+                <input type="text" id="channelName" placeholder="Nom de votre chaîne" required>
+                <button type="submit">Créer/Modifier Chaîne</button>
+            </form>
+            <h3>Ajouter un Tutoriel</h3>
+            <form id="tutorialForm">
+                <input type="text" id="tutorialTitle" placeholder="Titre du tutoriel" required>
+                <textarea id="tutorialContent" placeholder="Contenu du tutoriel" rows="10" required></textarea>
+                <button type="submit">Ajouter Tutoriel</button>
+            </form>
+            <h3>Mes Tutoriels</h3>
+            <div id="myTutorials"></div>
+        </div>
+        <div id="allTutorials" class="section">
+            <h2>Tous les Tutoriels</h2>
+            <div id="allTutorialsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentChannel = localStorage.getItem('currentChannel') || '';
+        let tutorials = JSON.parse(localStorage.getItem('tutorials')) || [];
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            if (sectionId === 'myChannel') {
+                loadMyChannel();
+            } else if (sectionId === 'allTutorials') {
+                loadAllTutorials();
+            }
+        }
+
+        function loadMyChannel() {
+            document.getElementById('channelName').value = currentChannel;
+            displayMyTutorials();
+        }
+
+        function displayMyTutorials() {
+            const myTutorialsDiv = document.getElementById('myTutorials');
+            myTutorialsDiv.innerHTML = '';
+            const myTutorials = tutorials.filter(t => t.channel === currentChannel);
+            myTutorials.forEach(tutorial => {
+                const div = document.createElement('div');
+                div.className = 'tutorial';
+                div.innerHTML = `<h3>${tutorial.title}</h3><p>${tutorial.content}</p><small>Par ${tutorial.channel}</small>`;
+                myTutorialsDiv.appendChild(div);
+            });
+        }
+
+        function loadAllTutorials() {
+            const allTutorialsDiv = document.getElementById('allTutorialsList');
+            allTutorialsDiv.innerHTML = '';
+            tutorials.forEach(tutorial => {
+                const div = document.createElement('div');
+                div.className = 'tutorial';
+                div.innerHTML = `<h3>${tutorial.title}</h3><p>${tutorial.content}</p><small>Par ${tutorial.channel}</small>`;
+                allTutorialsDiv.appendChild(div);
+            });
+        }
+
+        function searchTutorials() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '';
+            if (!query) {
+                resultsDiv.innerHTML = '<p>Veuillez entrer un terme de recherche.</p>';
+                return;
+            }
+            const results = tutorials.filter(tutorial =>
+                tutorial.title.toLowerCase().includes(query) ||
+                tutorial.content.toLowerCase().includes(query)
+            );
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<p>Aucun tutoriel trouvé.</p>';
+            } else {
+                results.forEach(tutorial => {
+                    const div = document.createElement('div');
+                    div.className = 'tutorial';
+                    div.innerHTML = `<h3>${tutorial.title}</h3><p>${tutorial.content}</p><small>Par ${tutorial.channel}</small>`;
+                    resultsDiv.appendChild(div);
+                });
+            }
+        }
+
+        document.getElementById('channelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            currentChannel = document.getElementById('channelName').value.trim();
+            if (currentChannel) {
+                localStorage.setItem('currentChannel', currentChannel);
+                alert('Chaîne créée/modifiée !');
+            }
+        });
+
+        document.getElementById('tutorialForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!currentChannel) {
+                alert('Veuillez d\'abord créer une chaîne.');
+                return;
+            }
+            const title = document.getElementById('tutorialTitle').value.trim();
+            const content = document.getElementById('tutorialContent').value.trim();
+            if (title && content) {
+                tutorials.push({ channel: currentChannel, title, content });
+                localStorage.setItem('tutorials', JSON.stringify(tutorials));
+                document.getElementById('tutorialTitle').value = '';
+                document.getElementById('tutorialContent').value = '';
+                displayMyTutorials();
+                alert('Tutoriel ajouté !');
+            }
+        });
+
+        // Load initial data
+        if (currentChannel) {
+            document.getElementById('channelName').value = currentChannel;
+        }
+    </script>
+</body>
+</html>
