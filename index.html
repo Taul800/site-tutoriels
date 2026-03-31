@@ -81,7 +81,7 @@
     <header>
         <h1>Site de Tutoriels en Ligne</h1>
     </header>
-    <p id="openShop" style="transform: rotate(180deg);">MAKE 100% WITH AI</p>
+    <p>MAKE 100% WITH AI</p>
     <nav>
         <button onclick="showSection('home')">Accueil</button>
         <button onclick="showSection('myChannel')">Ma Chaîne</button>
@@ -118,10 +118,6 @@
     </div>
 
     <script>
-openShop.addEventListener("click", function() {
-    shop.style.display = (shop.style.display === "none") ? "block" : "none";
-});
-
         let currentChannel = localStorage.getItem('currentChannel') || '';
         let tutorials = JSON.parse(localStorage.getItem('tutorials')) || [];
 
